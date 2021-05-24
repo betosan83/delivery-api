@@ -36,6 +36,7 @@ public class ClienteController {
 	@GetMapping("/{clienteId}")
 	public ResponseEntity<Cliente> buscar(@PathVariable Long clienteId) {
 		return clienteRepository.findById(clienteId)
+				//Modo alternativo
 //				.map(cliente -> ResponseEntity.ok(cliente))
 				.map(ResponseEntity::ok)
 				.orElse(ResponseEntity.notFound().build());
