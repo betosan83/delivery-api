@@ -2,6 +2,8 @@ package com.boscolo.deliveryapi.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.boscolo.deliveryapi.domain.model.Cliente;
 import com.boscolo.deliveryapi.domain.repository.ClienteRepository;
+import com.boscolo.deliveryapi.domain.service.CatalogoClienteService;
 
 import lombok.AllArgsConstructor;
 
@@ -25,18 +28,16 @@ import lombok.AllArgsConstructor;
 public class ClienteController {
 	
 	private ClienteRepository clienteRepository;
+	private CatalogoClienteService catalogoClienteService;
 	
 	@GetMapping
 	public List<Cliente> listar() {
-		Cliente cliente1 = new Cliente();
-		cliente1.setNome("Roberto");
 		return clienteRepository.findAll();
 	}
 	
 	@GetMapping("/{clienteId}")
 	public ResponseEntity<Cliente> buscar(@PathVariable Long clienteId) {
 		return clienteRepository.findById(clienteId)
-				//Modo alternativo
 //				.map(cliente -> ResponseEntity.ok(cliente))
 				.map(ResponseEntity::ok)
 				.orElse(ResponseEntity.notFound().build());
@@ -44,8 +45,8 @@ public class ClienteController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente adicionarCliente(@RequestBody Cliente cliente) {
-		return clienteRepository.save(cliente);
+	public Cliente adicionarCliente(@Valid @RequestBody Cliente cliente) {
+		return catalogoClienteService.salvar(cliente);
 	}
 	
 	@PutMapping("/{clienteId}")
@@ -56,7 +57,7 @@ public class ClienteController {
 		}
 		
 		cliente.setId(clienteId);
-		cliente = clienteRepository.save(cliente);
+		cliente = catalogoClienteService.salvar(cliente);
 		
 		return ResponseEntity.ok(cliente);
 	}
@@ -67,7 +68,7 @@ public class ClienteController {
 			return ResponseEntity.notFound().build();
 		}
 		
-		clienteRepository.deleteById(clienteId);
+		catalogoClienteService.excluir(clienteId);
 		
 		return ResponseEntity.noContent().build();
 	}
